@@ -1,0 +1,119 @@
+<!DOCTYPE html>    
+<html>    
+<head>   
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />    
+    <meta name="viewport" content="initial-scale=1.0, user-scalable=no" />    
+	<script type="text/javascript" src="http://api.map.baidu.com/api?v=2.0&ak=F0i6SrLmHquLVNLCqpExxPrj8mWVdFwx"></script>
+	<script type="text/javascript" src="http://api.map.baidu.com/library/DrawingManager/1.4/src/DrawingManager_min.js"></script>
+	<link rel="stylesheet" href="http://api.map.baidu.com/library/DrawingManager/1.4/src/DrawingManager_min.css" />
+
+	<style type="text/css">    
+	    body{width: 100%;height: 100%;margin:0;font-family:"微软雅黑";}    
+		#map {width: 100%; height:520px;border:2px solid white;overflow:hidden;}    
+		#data{width:100%;height:10%;border:2px solid white;}
+        #table{width:100%;height:10%;border: 2px solid white;}
+	</style>
+    
+</head>    
+<body>    
+    <!-- 本次的html框架分为3部分 1.地图 2.按钮 3.数据区 -->
+    <!-- 地图 -->
+    <div id="map"></div>
+
+    <!-- 按钮-->
+    <div class="letterarea" >    
+        <input type="button" value="绘制多边形" onclick="draw(BMAP_DRAWING_POLYGON)" />    
+        <input type="button" value="获取经纬度" onclick="getPoint()"/>             
+        <input type="button" value="清除多边形" onclick="clearAll()"/>    
+    </div>
+
+    <!-- 数据 -->
+    <div id="data"></div> 
+
+    <!-- 提交 -->
+    <form action="judge.php" method="post" id="table">
+        <span>请输入类似[121.00,29.00]</span>
+        <input type="text" name="lonlat" />
+        <input type="submit" value="Submit" />
+    </form>
+</body>    
+</html>
+
+<script type="text/javascript">    
+    // 第一部分  定义$函数
+    function $(id){    
+    	return document.getElementById(id);    
+	}
+	
+	// 第二部分 地图的绘制
+    var map = new BMap.Map('map');    
+    var poi = new BMap.Point(121.587959,29.277325);    
+    map.centerAndZoom(poi, 16);   
+    map.enableScrollWheelZoom();
+
+    var overlays = [];    
+    var overlaycomplete = function(e){    
+        overlays.push(e.overlay);     
+    }; 
+
+    // 第三部分   鼠标绘制多边形的演示
+    // 填充的样式 
+    var styleOptions = {    
+        strokeColor:"#43a34c", 
+        fillColor:"#43a34c", 
+        fillOpacity: 0.3,    
+        strokeWeight:2, 
+        strokeOpacity:0.5 
+    }           
+    //实例化鼠标绘制工具    
+    var drawingManager = new BMapLib.DrawingManager(map, {    
+        enableDrawingTool: true, 
+        drawingToolOptions: {    
+            anchor: BMAP_ANCHOR_TOP_RIGHT,   
+            offset: new BMap.Size(5, 5),    
+        },
+        polygonOptions: styleOptions,  
+    });   
+    //添加鼠标绘制工具监听事件，用于获取绘制结果    
+    drawingManager.addEventListener('overlaycomplete', overlaycomplete);    
+    
+    // 第四部分*****************绘制多边形命令********************
+    function draw(type){    
+    	// 开启
+        drawingManager.open();     
+        // 模型选择
+        drawingManager.setDrawingMode(type);    
+    }
+
+
+    // 第五部分    获取经纬度信息
+    function getPoint(){    
+        $("data").innerHTML='';    
+        for(var i = 0; i < overlays.length; i++){    
+            var overlay=overlays[i].getPath();    
+            $("data").innerHTML=$("data").innerHTML+'经纬度数组'+'<br>';    
+            for(var j = 0; j < overlay.length; j++){    
+                var grid =overlay[j];    
+                $("data").innerHTML=$("data").innerHTML+"["+grid.lng+","+grid.lat+"],";    
+            }    
+        }
+    }
+
+    // 第六部分  清除多边形的命令
+    function clearAll() {    
+        for(var i = 0; i < overlays.length; i++){    
+            map.removeOverlay(overlays[i]);    
+        }    
+        overlays.length = 0       
+    }
+
+    //第七部分   鼠标右键弹出经纬度的信息
+    map.addEventListener("rightclick",function(e){    
+        // confirm进行弹出窗口的按钮
+        if(confirm(e.point.lng + "," + e.point.lat)){    
+            // 这里是一个div的区域
+            $("data").innerHTML=$("data").innerHTML+" <br/>["+e.point.lng+","+e.point.lat+"]";    
+            }    
+    });
+
+</script>    
