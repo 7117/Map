@@ -47,7 +47,9 @@
     map.enableScrollWheelZoom();
 
     var overlays = [];    
+    // 完成的数组
     var overlaycomplete = function(e){    
+        // 向里面进行添加
         overlays.push(e.overlay);     
     }; 
 
@@ -107,7 +109,7 @@
         // confirm进行弹出窗口的按钮
         if(confirm(e.point.lng + "," + e.point.lat)){    
             // 这里是一个div的区域
-            $("data").innerHTML=$("data").innerHTML+" <br/>["+e.point.lng+","+e.point.lat+"]";    
+            $("data").innerHTML=$("data").innerHTML+"["+e.point.lng+","+e.point.lat+"]";    
             }    
     });
 </script>    
